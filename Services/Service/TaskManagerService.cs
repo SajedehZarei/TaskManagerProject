@@ -31,11 +31,13 @@ namespace ServiceLayer.Service
         public async Task<SaveTaskInformationResponseDto> SaveTaskInformation(SaveTaskInformationDto input, CancellationToken cancellationToken)
         {
             var task = await _dbContext.TaskInformation.FirstOrDefaultAsync(p => p.Id == input.TaskInformationId);
+            //inser code
             if (task is null)
             {
-                var result = ObjectMapper.Map<TaskInformation>(input);
-                _dbContext.TaskInformation.Add(result);
+                task = ObjectMapper.Map<TaskInformation>(input);
+                _dbContext.TaskInformation.Add(task);
             }
+            //update code
             else
             {
                 ObjectMapper.Map(input, task);
@@ -52,7 +54,7 @@ namespace ServiceLayer.Service
         /// <returns></returns>
         public async Task<GetTaskInformationResponseDto> GetTaskInformation(GetTaskInformationDto input, CancellationToken cancellationToken)
         {
-            var task = await _dbContext.TaskInformation.FirstOrDefaultAsync(p => p.Id == input.TaskInformationId);
+            var task = await _dbContext.TaskInformation.FirstOrDefaultAsync(p => p.Id == input.TaskInformationId && p.IsActive==true);
             if (task is null)
             {
                 // throw new Exception("NotFoundTaskInformation");
@@ -98,6 +100,7 @@ namespace ServiceLayer.Service
             var task = await _dbContext.TaskInformation.FirstOrDefaultAsync(p => p.Id == input.TaskInformationId);
             if (task is null) throw new Exception("NotFoundTaskInformation");
             task.IsDeleted = true;
+            task.IsActive = false;
             await _dbContext.SaveChangesAsync();
             return new DeleteTaskInformationResponseDto() { TaskInformationId = input.TaskInformationId };
         }
